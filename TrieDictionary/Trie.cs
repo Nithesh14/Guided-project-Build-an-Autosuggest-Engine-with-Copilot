@@ -1,21 +1,67 @@
 public class TrieNode
 {
-    public Dictionary<char, TrieNode> Children { get; set; }
-    public bool IsEndOfWord { get; set; }
-
-    public char _value;
-
-    public TrieNode(char value = ' ')
+    /// <summary>
+    /// Represents a node in the Trie data structure.
+    /// </summary>
+    public class TrieNode
     {
-        Children = new Dictionary<char, TrieNode>();
-        IsEndOfWord = false;
-        _value = value;
-    }
+        /// <summary>
+        /// Gets or sets the children nodes of the current node.
+        /// </summary>
+        public Dictionary<char, TrieNode> Children { get; set; }
 
-    public bool HasChild(char c)
-    {
-        return Children.ContainsKey(c);
+        /// <summary>
+        /// Gets or sets a value indicating whether the current node represents the end of a word.
+        /// </summary>
+        public bool IsEndOfWord { get; set; }
+
+        /// <summary>
+        /// Gets or sets the character value of the current node.
+        /// </summary>
+        private char _value;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TrieNode"/> class with the specified character value.
+        /// </summary>
+        /// <param name="value">The character value of the node.</param>
+        public TrieNode(char value = ' ')
+        {
+            Children = new Dictionary<char, TrieNode>();
+            IsEndOfWord = false;
+            _value = value;
+        }
+
+        /// <summary>
+        /// Determines whether the current node has a child node with the specified character.
+        /// </summary>
+        /// <param name="c">The character to check.</param>
+        /// <returns><c>true</c> if the current node has a child node with the specified character; otherwise, <c>false</c>.</returns>
+        public bool HasChild(char c)
+        {
+            return Children.ContainsKey(c);
+        }
     }
+}
+
+// Search for a word in the trie
+public bool Search(string word) 
+{
+    TrieNode current = root;
+
+    // For each character in the word
+    foreach (char c in word)
+    {
+        // If the current node does not have the character as a child
+        if (!current.HasChild(c))
+        {
+            // The word does not exist in the trie
+            return false;
+        }
+        // Move to the child node
+        current = current.Children[c];
+    }
+    // Return true if the current node represents the end of a word
+    return current.IsEndOfWord;
 }
 
 public class Trie
@@ -30,18 +76,26 @@ public class Trie
     public bool Insert(string word)
     {
         TrieNode current = root;
+
+
+        // Fro each character in the word
         foreach (char c in word)
         {
+            // If the current node does not have the character as a child
             if (!current.HasChild(c))
             {
+                // Add the character as a child
                 current.Children[c] = new TrieNode(c);
             }
+            // Move to the child node
             current = current.Children[c];
         }
         if (current.IsEndOfWord)
         {
+            // Word already exists in the trie
             return false;
         }
+        // Mark the end of the word
         current.IsEndOfWord = true;
         return true;
     }
@@ -62,7 +116,18 @@ public class Trie
 
     private List<string> GetAllWordsWithPrefix(TrieNode root, string prefix)
     {
-        return null;
+        List<string> words = new List<string>();
+        if (node.IsEndOfWord)
+        {
+            words.Add(prefix);
+        }
+
+        foreach (var child in root.Children)
+        {
+            words.AddRange(GetAllWordsWithPrefix(child.Value, prefix + child.Key));
+        }
+
+        return words;
     }
 
     public List<string> GetAllWords()
